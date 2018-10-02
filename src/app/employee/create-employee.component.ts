@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-create-employee',
@@ -15,7 +15,7 @@ export class CreateEmployeeComponent implements OnInit {
    
     //form builder class to create reactive form
     this.employeeForm = this.fb.group({
-      fullName: [''],
+      fullName: ['', [Validators.required,Validators.minLength(2), Validators.maxLength(10)] ],
       email: [''],
       // nested form group skills
       skills: this.fb.group({
