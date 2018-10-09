@@ -14,10 +14,10 @@ export class CreateEmployeeComponent implements OnInit {
   constructor(private fb: FormBuilder) { }
 
   ngOnInit() {
-   
+
     //form builder class to create reactive form
     this.employeeForm = this.fb.group({
-      fullName: ['', [Validators.required,Validators.minLength(2), Validators.maxLength(10)] ],
+      fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]],
       email: [''],
       // nested form group skills
       skills: this.fb.group({
@@ -26,21 +26,21 @@ export class CreateEmployeeComponent implements OnInit {
         proficiency: ['beginner']//default value passed 
       })
     });
-      // Subscribe to valueChanges observable
-      // this.employeeForm.get('fullName').valueChanges.subscribe( value => {
-      //     console.log(value);
-      //   });
+    // Subscribe to valueChanges observable
+    // this.employeeForm.get('fullName').valueChanges.subscribe( value => {
+    //     console.log(value);
+    //   });
 
-        // Subscribe to FormGroup valueChanges observable
-        // this.employeeForm.valueChanges.subscribe(
-        //   value => {
-        //     console.log(JSON.stringify(value));
-        //   }
-        // );
+    // Subscribe to FormGroup valueChanges observable
+    // this.employeeForm.valueChanges.subscribe(
+    //   value => {
+    //     console.log(JSON.stringify(value));
+    //   }
+    // );
 
-    this.employeeForm.get('skills').valueChanges.subscribe((value: any) => {
-      console.log(JSON.stringify(value));
-    });
+    // this.employeeForm.get('skills').valueChanges.subscribe((value: any) => {
+    //   console.log(JSON.stringify(value));
+    // });
   }
 
   onSubmit(): void {
@@ -50,15 +50,32 @@ export class CreateEmployeeComponent implements OnInit {
     console.log(this.employeeForm.get('fullName').value);
   }
 
-  onLoadDataClick(): void {
-    this.employeeForm.patchValue({
-      fullName: 'Pragim Technologies',
-      email: 'pragim@pragimtech.com',
-      skills: {
-       skillName: 'C#',
-       experienceInYears: 5,
-       proficiency: 'beginner'
-       }
+  logKeyValuePairs(group: FormGroup): void {
+    Object.keys(group.controls).forEach((key: string) => {
+      const abstarctControl = group.get(key);
+      if(abstarctControl instanceof FormGroup){
+        this.logKeyValuePairs(abstarctControl);
+      }
+      else{
+        //console.log('Key = '+ key + ' Value ='+ abstarctControl.value);
+        abstarctControl.markAsDirty();
+      }
+
     });
+  }
+
+
+
+  onLoadDataClick(): void {
+    this.logKeyValuePairs(this.employeeForm);
+    // this.employeeForm.patchValue({
+    //   fullName: 'Pragim Technologies',
+    //   email: 'pragim@pragimtech.com',
+    //   skills: {
+    //     skillName: 'C#',
+    //     experienceInYears: 5,
+    //     proficiency: 'beginner'
+    //   }
+    // });
   }
 }
