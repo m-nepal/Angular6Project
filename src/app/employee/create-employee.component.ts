@@ -10,37 +10,53 @@ export class CreateEmployeeComponent implements OnInit {
 
   employeeForm: FormGroup;
   fullNameLength: number = 0;
+  // Notice, each key in this object has the same name as the corresponding form control
+  formErrors = {
+    'fullName': '',
+    'email': '',
+    'skillName': '',
+    'experienceInYears': '',
+    'proficiency': ''
+  };
+  // This object contains all the validation messages for this form
+  validationMessages = {
+    'fullName': {
+      'required': 'Full Name is required.',
+      'minlength': 'Full Name must be greater than 2 characters.',
+      'maxlength': 'Full Name must be less than 10 characters.'
+    },
+    'email': {
+      'required': 'Email is required.'
+    },
+    'skillName': {
+      'required': 'Skill Name is required.',
+    },
+    'experienceInYears': {
+      'required': 'Experience is required.',
+    },
+    'proficiency': {
+      'required': 'Proficiency is required.',
+    },
+  };
 
   constructor(private fb: FormBuilder) { }
 
   ngOnInit() {
-
     //form builder class to create reactive form
     this.employeeForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]],
-      email: [''],
+      email: ['', Validators.required],
       // nested form group skills
       skills: this.fb.group({
-        skillName: [''],
-        experienceInYears: [''],
-        proficiency: ['beginner']//default value passed 
+        skillName: ['', Validators.required],
+        experienceInYears: ['', Validators.required],
+        proficiency: ['', Validators.required]//default value first element
       })
     });
-    // Subscribe to valueChanges observable
-    // this.employeeForm.get('fullName').valueChanges.subscribe( value => {
-    //     console.log(value);
-    //   });
 
-    // Subscribe to FormGroup valueChanges observable
-    // this.employeeForm.valueChanges.subscribe(
-    //   value => {
-    //     console.log(JSON.stringify(value));
-    //   }
-    // );
-
-    // this.employeeForm.get('skills').valueChanges.subscribe((value: any) => {
-    //   console.log(JSON.stringify(value));
-    // });
+    this.employeeForm.valueChanges.subscribe((data) => {
+      this.logValidationErrors(this.employeeForm);
+    });
   }
 
   onSubmit(): void {
@@ -50,32 +66,29 @@ export class CreateEmployeeComponent implements OnInit {
     console.log(this.employeeForm.get('fullName').value);
   }
 
-  logKeyValuePairs(group: FormGroup): void {
+  logValidationErrors(group: FormGroup = this.employeeForm): void {
     Object.keys(group.controls).forEach((key: string) => {
       const abstarctControl = group.get(key);
-      if(abstarctControl instanceof FormGroup){
-        this.logKeyValuePairs(abstarctControl);
+      if (abstarctControl instanceof FormGroup) {
+        this.logValidationErrors(abstarctControl);
       }
-      else{
-        //console.log('Key = '+ key + ' Value ='+ abstarctControl.value);
-        abstarctControl.markAsDirty();
+      else {
+        this.formErrors[key] = '';
+        if (abstarctControl && !abstarctControl.valid && (abstarctControl.touched || abstarctControl.dirty)) {
+          const messages = this.validationMessages[key];
+          console.log(messages);
+          for(const errorKey in abstarctControl.errors){
+            if(errorKey){
+              this.formErrors[key] += messages[errorKey] + ' ';
+            }            
+          }         
+        }
       }
-
     });
   }
 
-
-
   onLoadDataClick(): void {
-    this.logKeyValuePairs(this.employeeForm);
-    // this.employeeForm.patchValue({
-    //   fullName: 'Pragim Technologies',
-    //   email: 'pragim@pragimtech.com',
-    //   skills: {
-    //     skillName: 'C#',
-    //     experienceInYears: 5,
-    //     proficiency: 'beginner'
-    //   }
-    // });
+    // this.logValidationErrors(this.employeeForm);
+    // console.log(this.formErrors);
   }
 }
