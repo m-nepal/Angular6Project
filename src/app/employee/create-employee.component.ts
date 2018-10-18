@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-create-employee',
@@ -14,6 +14,7 @@ export class CreateEmployeeComponent implements OnInit {
   formErrors = {
     'fullName': '',
     'email': '',
+    'phone': '',
     'skillName': '',
     'experienceInYears': '',
     'proficiency': ''
@@ -26,7 +27,11 @@ export class CreateEmployeeComponent implements OnInit {
       'maxlength': 'Full Name must be less than 10 characters.'
     },
     'email': {
-      'required': 'Email is required.'
+      'required': 'Email is required.',
+      'emailDomain':'Email domain should be pragimtech.com'
+    },
+    'phone': {
+      'required': 'Phone is required.'
     },
     'skillName': {
       'required': 'Skill Name is required.',
@@ -45,7 +50,9 @@ export class CreateEmployeeComponent implements OnInit {
     //form builder class to create reactive form
     this.employeeForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]],
-      email: ['', Validators.required],
+      contactPreference: ['email'],
+      email: ['',[Validators.required, emailDomain]],
+      phone: [''],
       // nested form group skills
       skills: this.fb.group({
         skillName: ['', Validators.required],
@@ -54,9 +61,25 @@ export class CreateEmployeeComponent implements OnInit {
       })
     });
 
+    this.employeeForm.get('contactPreference').valueChanges.subscribe((data: string) => {
+      this.onContactPrefernceChange(data);
+    });
+
     this.employeeForm.valueChanges.subscribe((data) => {
       this.logValidationErrors(this.employeeForm);
     });
+  }
+
+  // If the Selected Radio Button value is "phone", then add the
+  // required validator function otherwise remove it
+  onContactPrefernceChange(selectedValue: string) {
+    const phoneFormControl = this.employeeForm.get('phone');
+    if (selectedValue === 'phone') {
+      phoneFormControl.setValidators(Validators.required);
+    } else {
+      phoneFormControl.clearValidators();
+    }
+    phoneFormControl.updateValueAndValidity();
   }
 
   onSubmit(): void {
@@ -77,11 +100,11 @@ export class CreateEmployeeComponent implements OnInit {
         if (abstarctControl && !abstarctControl.valid && (abstarctControl.touched || abstarctControl.dirty)) {
           const messages = this.validationMessages[key];
           console.log(messages);
-          for(const errorKey in abstarctControl.errors){
-            if(errorKey){
+          for (const errorKey in abstarctControl.errors) {
+            if (errorKey) {
               this.formErrors[key] += messages[errorKey] + ' ';
-            }            
-          }         
+            }
+          }
         }
       }
     });
@@ -90,5 +113,15 @@ export class CreateEmployeeComponent implements OnInit {
   onLoadDataClick(): void {
     // this.logValidationErrors(this.employeeForm);
     // console.log(this.formErrors);
+  }
+}
+
+function emailDomain(control: AbstractControl): { [key: string]: any } | null {
+  const email: string = control.value;
+  const domain = email.substring(email.lastIndexOf('@') + 1);
+  if(email === '' || domain.toLowerCase() === 'pragimtech.com'){
+    return null;
+  }else{
+    return {'emailDomain': true}
   }
 }
