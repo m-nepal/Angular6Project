@@ -15,6 +15,8 @@ export class CreateEmployeeComponent implements OnInit {
   formErrors = {
     'fullName': '',
     'email': '',
+    'confirmEmail': '',
+    'emailGroup': '',
     'phone': '',
     'skillName': '',
     'experienceInYears': '',
@@ -30,6 +32,12 @@ export class CreateEmployeeComponent implements OnInit {
     'email': {
       'required': 'Email is required.',
       'emailDomain': 'Email domain should be dell.com'
+    },
+    'confirmEmail': {
+      'required': 'Confirm Email is required.'
+    },
+    'emailGroup': {
+      'emailMismatch': 'Email and Confirm Email do not match',
     },
     'phone': {
       'required': 'Phone is required.'
@@ -52,7 +60,10 @@ export class CreateEmployeeComponent implements OnInit {
     this.employeeForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]],
       contactPreference: ['email'],
-      email: ['', [Validators.required, CustomValidators.emailDomain('dell.com')]],
+      emailGroup: this.fb.group({
+        email: ['', [Validators.required, CustomValidators.emailDomain('dell.com')]],
+        confirmEmail: ['', Validators.required],
+      }, { validator: matchEmail }),
       phone: [''],
       // nested form group skills
       skills: this.fb.group({
@@ -83,6 +94,24 @@ export class CreateEmployeeComponent implements OnInit {
     phoneFormControl.updateValueAndValidity();
   }
 
+  logValidationErrors(group: FormGroup = this.employeeForm): void {
+    Object.keys(group.controls).forEach((key: string) => {
+      const abstarctControl = group.get(key);
+      this.formErrors[key] = '';
+      if (abstarctControl && !abstarctControl.valid && (abstarctControl.touched || abstarctControl.dirty)) {
+        const messages = this.validationMessages[key];
+        console.log(messages);
+        for (const errorKey in abstarctControl.errors) {
+          if (errorKey) {
+            this.formErrors[key] += messages[errorKey] + ' ';
+          }
+        }
+      }
+      if (abstarctControl instanceof FormGroup) {
+        this.logValidationErrors(abstarctControl);
+      }
+    });
+  }
   onSubmit(): void {
     console.log(this.employeeForm.touched);
     console.log(this.employeeForm.value);
@@ -90,26 +119,7 @@ export class CreateEmployeeComponent implements OnInit {
     console.log(this.employeeForm.get('fullName').value);
   }
 
-  logValidationErrors(group: FormGroup = this.employeeForm): void {
-    Object.keys(group.controls).forEach((key: string) => {
-      const abstarctControl = group.get(key);
-      if (abstarctControl instanceof FormGroup) {
-        this.logValidationErrors(abstarctControl);
-      }
-      else {
-        this.formErrors[key] = '';
-        if (abstarctControl && !abstarctControl.valid && (abstarctControl.touched || abstarctControl.dirty)) {
-          const messages = this.validationMessages[key];
-          console.log(messages);
-          for (const errorKey in abstarctControl.errors) {
-            if (errorKey) {
-              this.formErrors[key] += messages[errorKey] + ' ';
-            }
-          }
-        }
-      }
-    });
-  }
+
 
   onLoadDataClick(): void {
     // this.logValidationErrors(this.employeeForm);
@@ -117,4 +127,13 @@ export class CreateEmployeeComponent implements OnInit {
   }
 }
 
+function matchEmail(group: AbstractControl): { [key: string]: any } | null {
+  const emailControl = group.get('email');
+  const confirmEmailControl = group.get('confirmEmail');
+  if (emailControl.value === confirmEmailControl.value || confirmEmailControl.pristine) {
+    return null;
+  } else {
+    return { 'emailMismatch': true };
+  }
+}
 
