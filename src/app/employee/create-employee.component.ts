@@ -74,6 +74,9 @@ export class CreateEmployeeComponent implements OnInit {
     (<FormArray>this.employeeForm.get('skills')).push(this.addSkillFormGroup());
   }
 
+  removeSkillButtonClick(skillGroupIndex: number):void{
+    (<FormArray>this.employeeForm.get('skills')).removeAt(skillGroupIndex);
+  }
   // If the Selected Radio Button value is "phone", then add the
   // required validator function otherwise remove it
   onContactPrefernceChange(selectedValue: string) {
