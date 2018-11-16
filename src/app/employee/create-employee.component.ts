@@ -12,16 +12,7 @@ export class CreateEmployeeComponent implements OnInit {
   employeeForm: FormGroup;
   fullNameLength: number = 0;
   // Notice, each key in this object has the same name as the corresponding form control
-  formErrors = {
-    'fullName': '',
-    'email': '',
-    'confirmEmail': '',
-    'emailGroup': '',
-    'phone': '',
-    'skillName': '',
-    'experienceInYears': '',
-    'proficiency': ''
-  };
+  formErrors = {};
   // This object contains all the validation messages for this form
   validationMessages = {
     'fullName': {
@@ -41,16 +32,8 @@ export class CreateEmployeeComponent implements OnInit {
     },
     'phone': {
       'required': 'Phone is required.'
-    },
-    'skillName': {
-      'required': 'Skill Name is required.',
-    },
-    'experienceInYears': {
-      'required': 'Experience is required.',
-    },
-    'proficiency': {
-      'required': 'Proficiency is required.',
-    },
+    }
+    
   };
 
   constructor(private fb: FormBuilder) { }
@@ -66,11 +49,9 @@ export class CreateEmployeeComponent implements OnInit {
       }, { validator: matchEmail }),
       phone: [''],
       // nested form group skills
-      skills: this.fb.group({
-        skillName: ['', Validators.required],
-        experienceInYears: ['', Validators.required],
-        proficiency: ['', Validators.required]//default value first element
-      })
+      skills: this.fb.array([
+            this.addSkillFormGroup()
+      ])
     });
 
     this.employeeForm.get('contactPreference').valueChanges.subscribe((data: string) => {
@@ -80,6 +61,17 @@ export class CreateEmployeeComponent implements OnInit {
     this.employeeForm.valueChanges.subscribe((data) => {
       this.logValidationErrors(this.employeeForm);
     });
+  }
+
+  addSkillFormGroup(): FormGroup {
+    return this.fb.group({
+      skillName: ['', Validators.required],
+      experienceInYears: ['', Validators.required],
+      proficiency: ['', Validators.required]//default value first element
+    });
+  }
+  addSkillButtonClick(): void {
+    (<FormArray>this.employeeForm.get('skills')).push(this.addSkillFormGroup());
   }
 
   // If the Selected Radio Button value is "phone", then add the
@@ -110,6 +102,14 @@ export class CreateEmployeeComponent implements OnInit {
       if (abstarctControl instanceof FormGroup) {
         this.logValidationErrors(abstarctControl);
       }
+      /*
+      if (abstarctControl instanceof FormArray) {
+        for(const control of abstarctControl.controls){
+          if( control instanceof FormGroup){
+            this.logValidationErrors(control);
+          }
+        }        
+      }*/
     });
   }
   onSubmit(): void {
@@ -133,7 +133,7 @@ export class CreateEmployeeComponent implements OnInit {
       new FormControl('IT', Validators.required),
       new FormControl('Male', Validators.required),
     ]);
-    console.log(formArray); 
+    console.log(formArray);
     console.log(formGroup);
   }
 }
