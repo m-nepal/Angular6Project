@@ -97,6 +97,20 @@ export class CreateEmployeeComponent implements OnInit {
       },
       phone: employee.phone
     });
+
+    this.employeeForm.setControl('skills', this.setExistingSkills(employee.skills));
+  }
+
+  setExistingSkills(skillSets: ISkill[]): FormArray {
+    const formArray = new FormArray([]);
+    skillSets.forEach(s => {
+      formArray.push(this.fb.group({
+        skillName: s.skillName,
+        experienceInYears: s.experienceInYears,
+        proficiency: s.proficiency
+      }));
+    });  
+    return formArray;
   }
 
   addSkillFormGroup(): FormGroup {
@@ -111,7 +125,11 @@ export class CreateEmployeeComponent implements OnInit {
   }
 
   removeSkillButtonClick(skillGroupIndex: number):void{
-    (<FormArray>this.employeeForm.get('skills')).removeAt(skillGroupIndex);
+    const skillsFormArray = <FormArray>this.employeeForm.get('skills');
+    skillsFormArray.removeAt(skillGroupIndex);
+    skillsFormArray.markAsDirty();
+    skillsFormArray.markAsTouched();
+
   }
   // If the Selected Radio Button value is "phone", then add the
   // required validator function otherwise remove it
