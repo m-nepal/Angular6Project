@@ -43,3 +43,62 @@ ng g c employee/create-employee --spec=false --flat=true
 ng g c employee/list-employees --spec=false --flat=true
 ### Creating modules
 ng g m app-routing --flat=true --module=app
+
+### Creating Fake REST API
+
+First let's create a fake online REST API. 
+
+The following is the JSON Server Github page 
+https://github.com/typicode/json-server 
+Steps: 
+1. npm install -g json-server 
+2. Create db.json in the root project folder. Copy and paste following data.
+{
+    "employees": [
+        {
+            "id": 1,
+            "fullName": "Mark",
+            "contactPreference": "email",
+            "email": "mark@email.com",
+            "phone": "5641238971",
+            "skills": [
+                {
+                    "skillName": "C#",
+                    "experienceInYears": 1,
+                    "proficiency": "beginner"
+                },
+                {
+                    "skillName": "Java",
+                    "experienceInYears": 2,
+                    "proficiency": "intermediate"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "fullName": "John",
+            "contactPreference": "phone",
+            "email": "john@email.com",
+            "phone": "3242138971",
+            "skills": [
+                {
+                    "skillName": "Angular",
+                    "experienceInYears": 2,
+                    "proficiency": "beginner"
+                },
+                {
+                    "skillName": "HTML",
+                    "experienceInYears": 2,
+                    "proficiency": "intermediate"
+                },
+                {
+                    "skillName": "LINQ",
+                    "experienceInYears": 3,
+                    "proficiency": "advanced"
+                }
+            ]
+        }
+    ]
+}
+3. json-server --watch db.json
+4. http://localhost:3000/employees
