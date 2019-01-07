@@ -20,10 +20,10 @@ export class ListEmployeesComponent implements OnInit {
   }
 
   editButtonClick(employeeId: number){
-    this._router.navigate(['/edit',employeeId]);
+    this._router.navigate(['/employees/edit',employeeId]);
   }
   deleteButtonClick(employeeId: number){
-    this._router.navigate(['/delete',employeeId]);
+    this._router.navigate(['/employees/delete',employeeId]);
   }
 
 }

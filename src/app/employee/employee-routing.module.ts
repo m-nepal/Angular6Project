@@ -10,10 +10,12 @@ import { DeleteEmployeeComponent } from './delete-employee.component';
 // The last route is the empty path route. This specifies
 // the route to redirect to if the client side path is empty.
 const appRoutes: Routes = [
-  { path: 'list', component: ListEmployeesComponent },
-  { path: 'create', component: CreateEmployeeComponent },
-  { path: 'edit/:id', component: CreateEmployeeComponent },
-  { path: 'delete/:id', component: DeleteEmployeeComponent } 
+  { path : 'employees', children:[
+    { path: '', component: ListEmployeesComponent },
+    { path: 'create', component: CreateEmployeeComponent },
+    { path: 'edit/:id', component: CreateEmployeeComponent },
+    { path: 'delete/:id', component: DeleteEmployeeComponent } 
+  ]} 
 ];
 
 @NgModule({
